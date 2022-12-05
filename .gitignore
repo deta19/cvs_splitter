@@ -1,0 +1,7 @@
+!/files
+/files/*
+!/temp_files
+/temp_files/*
+*.rar
+*.zip
+*.csv
