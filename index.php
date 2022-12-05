@@ -22,16 +22,16 @@ $zip->open($zip_name,  ZipArchive::CREATE);
 
 
 
-
+			//get file data text
 			while (!feof($uploaded_file) ) {
 			    $lines[] = fgetcsv($uploaded_file);
 
 			}
-			// var_dump( $lines );
-			
+// var_dump( $lines );
+
 			fclose( $uploaded_file );
 
-			var_dump( $_POST['header_csv'] );
+var_dump( $_POST['header_csv'] );
 
 			//create files
 			$filter_collumns = array(); // data maybe from MySQL to add to your CSV file
@@ -40,70 +40,79 @@ $zip->open($zip_name,  ZipArchive::CREATE);
 				
 
 				// add your data to the CSV file
-				foreach($lines as $d) {
+				foreach($lines as $k => $d) {
+					if (  $k > 0 ) { // ignore the table header
 
+						if( !empty( $d[$h_csv]  ) && !in_array($d[$h_csv], $filter_collumns) ) {
+							$filter_collumns[] = $d[$h_csv];
+						}
 
-					if( !empty( $d[$h_csv]  ) && !in_array($d[$h_csv], $filter_collumns) ) {
-						$filter_collumns[] = $d[$h_csv];
 					}
+				}
 
+				
+			}
+// foreach($filter_collumns as $k => $filter_collumn) {
+
+
+
+// var_dump( $file_name  );
+// }
+// die;
+				//crreate new files
+			foreach($filter_collumns as $k => $filter_collumn) {
+
+	$file_name = trim($filter_collumn);
+	$file_name = str_replace( " ", "", $file_name );
+	$file_name = str_replace( "(", "", $file_name );
+	$file_name = str_replace( ")", "", $file_name );
+	$file_name = str_replace( "/", "", $file_name );
+	$file_name = str_replace( "-", "", $file_name );
+	$file_name = str_replace( ":", "", $file_name );
+	$file_name = str_replace( ".", "", $file_name );
+
+				$new_file[$k] = 'file_' . $file_name .'.csv';
+				$temp_file = fopen($temp_directory . $new_file[$k], 'w');
+
+				fputcsv($temp_file, $lines[0]);
+
+				foreach($lines as $k => $d) {
+					if(  $k > 0 ) {
+
+						if( !empty($d) && $d[$h_csv] == $filter_collumn ) {
+// var_dump($d);
+// var_dump( $d[$h_csv] );
+// var_dump( $filter_collumn  );
+							fprintf($temp_file, chr(0xEF).chr(0xBB).chr(0xBF));
+							fputcsv($temp_file, $d);
+
+						}
+					}
 					
 				}
 
+				fclose( $temp_file);
 
+				 // add this file to the ZIP folder
+  				// $zip->addFile( $zip_filepath,  __DIR__  . '\\' . $temp_directory . $new_file[$k] );
 
-
-
-				//crreate new files
-				foreach($filter_collumns as $k => $filter_collumn) {
-					// if( $k > 0 ) {
-
-						$new_file[$k] = 'file_' . $k .'.csv';
-						$temp_file = fopen($temp_directory . $new_file[$k], 'w');
-
-						fputcsv($temp_file, $lines[0]);
-
-						foreach($lines as $d) {
-
-
-							if( !empty($d) && $d[$h_csv] == $filter_collumn ) {
-								fprintf($temp_file, chr(0xEF).chr(0xBB).chr(0xBF));
-
-								fputcsv($temp_file, $d);
-							}
-
-							
-						}
-
-						fclose( $temp_file);
-
-						 // add this file to the ZIP folder
-		  				// $zip->addFile( $zip_filepath,  __DIR__  . '\\' . $temp_directory . $new_file[$k] );
-
-						echo $path = "temp_files/".$new_file[$k];
-						if(file_exists($path)){
-							$zip->addFromString(basename($path),  file_get_contents($path));  
-						}
-						else{
-							echo"file does not exist";
-						}
-
-
-
-
-		  				// now delete this CSV file
-						// if(is_file($temp_directory . $new_file[$k])) {
-						// 	unlink($temp_directory . $new_file[$k]);
-						// }
-
-					// }
-
+				echo $path = "temp_files/".$new_file[$k];
+				if(file_exists($path)){
+					$zip->addFromString(basename($path),  file_get_contents($path));  
+				}
+				else{
+					echo"file does not exist";
 				}
 
-			}
 
-				var_dump($filter_collumns);
-				die;
+
+  				// now delete this CSV file
+				// if(is_file($temp_directory . $new_file[$k])) {
+				// 	unlink($temp_directory . $new_file[$k]);
+				// }
+
+
+			}
 
 $zip->close();
 
