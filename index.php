@@ -15,35 +15,23 @@
 		if( file_exists($target_file)) {
 			$uploaded_file = fopen($target_file, 'r' );
 
-
-$zip = new ZipArchive();
-$zip_name = "files" .time(). ".zip"; // Zip name
-$zip->open($zip_name,  ZipArchive::CREATE);
-
-
+			$zip = new ZipArchive();
+			$zip_name = "files" .time(). ".zip"; // Zip name
+			$zip->open($zip_name,  ZipArchive::CREATE);
 
 			//get file data text
 			while (!feof($uploaded_file) ) {
 			    $lines[] = fgetcsv($uploaded_file);
 
 			}
-// var_dump( $lines );
 
 			fclose( $uploaded_file );
-
-// echo "header <br/>";
-// var_dump( $_POST['header_csv'] );
-// echo "<br/>";
 
 			//create files
 			$filter_collumns = array(); // data maybe from MySQL to add to your CSV file
 			foreach ($_POST['header_csv'] as $key => $h_csv) {
 				$temp_directory = 'temp_files/';
 				
-// echo "hcsv <br/>";
-// var_dump($h_csv);
-// echo " <br/>";
-
 				// add your data to the CSV file
 				foreach($lines as $k => $d) {
 					if (  $k > 0 ) { // ignore the table header
@@ -57,26 +45,7 @@ $zip->open($zip_name,  ZipArchive::CREATE);
 				
 			}
 
-
-// var_dump($filter_collumns);
-// die;
-// foreach($filter_collumns as $k => $filter_collumn) {
-
-
-// var_dump( $k );
-// var_dump( $filter_collumn );
-
-// 	// for( $i = 0; $i < count($filter_collumn); $i++ ) {
-// 	// 	echo  $filter_collumn[$i];
-
-// 	// 	foreach($lines as $k => $d) {
-// 	// 		echo $d;
-// 	// 	}
-
-// 	// }
-// }
-// die;
-				//crreate new files
+			//crreate new files
 			foreach($filter_collumns as $ky => $filter_collumn) {
 
 				for( $i = 0; $i < count($filter_collumn); $i++ ) {
@@ -116,8 +85,7 @@ $zip->open($zip_name,  ZipArchive::CREATE);
 					fclose( $temp_file);
 
 				 // add this file to the ZIP folder
-
-					echo $path = "temp_files/".$new_file[$ky];
+				// echo $path = "temp_files/".$new_file[$ky];
 					if(file_exists($path)){
 						$zip->addFromString(basename($path),  file_get_contents($path));  
 					}
@@ -134,13 +102,13 @@ $zip->open($zip_name,  ZipArchive::CREATE);
 
 				}
 			}
-$zip->close();
+			$zip->close();
 
 
-header('Content-Type: application/zip');
-header('Content-disposition: attachment; filename='.$zip_name);
-header('Content-Length: ' . filesize($zip));
-readfile($zip_name);
+			header('Content-Type: application/zip');
+			header('Content-disposition: attachment; filename='.$zip_name);
+			header('Content-Length: ' . filesize($zip));
+			readfile($zip_name);
 
 		}
 	}
