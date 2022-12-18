@@ -1,7 +1,8 @@
-!/files
-/files/*
-!/temp_files
-/temp_files/*
-*.rar
-*.zip
-*.csv
+/*
+/*.rar
+/*.zip
+/*.csv
+/files/*.csv
+!/files/
+/temp_files/*.csv
+!/temp_files/
